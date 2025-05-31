@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { MapaComponent } from "./pages/mapa/mapa.component";
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-root',
-  imports: [MapaComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [RouterOutlet],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'stepmap';
+    title = 'stepmap';
 }
