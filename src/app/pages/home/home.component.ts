@@ -15,4 +15,8 @@ export class HomeComponent implements OnInit {
     irParaMapa(): void {
         this.router.navigate(['/mapa']);
     }
+
+    irParaRota(): void {
+        this.router.navigate(['/rota']);
+    }
 }

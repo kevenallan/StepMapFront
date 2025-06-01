@@ -1,0 +1,22 @@
+<div class="container" style="margin: 10px">
+    <p-floatlabel variant="on">
+        <input pInputText id="origem" [(ngModel)]="origem" autocomplete="off" />
+        <label for="origem">Origem</label>
+    </p-floatlabel>
+
+    <p-floatlabel variant="on">
+        <input
+            pInputText
+            id="destino"
+            [(ngModel)]="destino"
+            autocomplete="off"
+        />
+        <label for="destino">Destino</label>
+    </p-floatlabel>
+
+    <div class="card flex justify-center" style="margin-top: 10px">
+        <p-button label="Ir" (click)="montarRota()"></p-button>
+    </div>
+</div>
+
+<div id="mapa" style="height: 100vh; width: 100%"></div>
