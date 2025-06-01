@@ -1,25 +1,34 @@
 <div class="container" style="margin: 10px">
-    <p-floatlabel variant="on">
-        <input
-            pInputText
-            id="origem"
-            [(ngModel)]="origem"
-            (blur)="buscarEndereco('origem')"
-            autocomplete="off"
-        />
-        <label for="origem">Origem</label>
-    </p-floatlabel>
-
-    <p-floatlabel variant="on">
-        <input
-            pInputText
-            id="destino"
-            [(ngModel)]="destino"
-            (blur)="buscarEndereco('destino')"
-            autocomplete="off"
-        />
-        <label for="destino">Destino</label>
-    </p-floatlabel>
+    <div id="endereco">
+        <p-floatlabel variant="on">
+            <input
+                pInputText
+                id="origem"
+                [(ngModel)]="origem"
+                autocomplete="off"
+            />
+            <label for="origem">Origem</label>
+        </p-floatlabel>
+        <p-button
+            icon="pi pi-search"
+            (click)="buscarEndereco('origem')"
+        ></p-button>
+    </div>
+    <div id="endereco">
+        <p-floatlabel variant="on">
+            <input
+                pInputText
+                id="destino"
+                [(ngModel)]="destino"
+                autocomplete="off"
+            />
+            <label for="destino">Destino</label>
+        </p-floatlabel>
+        <p-button
+            icon="pi pi-search"
+            (click)="buscarEndereco('destino')"
+        ></p-button>
+    </div>
 
     <div class="card flex justify-center" style="margin-top: 10px">
         <p-button label="Ir" (click)="montarRota()"></p-button>
