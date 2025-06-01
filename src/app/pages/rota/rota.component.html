@@ -1,6 +1,12 @@
 <div class="container" style="margin: 10px">
     <p-floatlabel variant="on">
-        <input pInputText id="origem" [(ngModel)]="origem" autocomplete="off" />
+        <input
+            pInputText
+            id="origem"
+            [(ngModel)]="origem"
+            (blur)="buscarEndereco('origem')"
+            autocomplete="off"
+        />
         <label for="origem">Origem</label>
     </p-floatlabel>
 
@@ -9,6 +15,7 @@
             pInputText
             id="destino"
             [(ngModel)]="destino"
+            (blur)="buscarEndereco('destino')"
             autocomplete="off"
         />
         <label for="destino">Destino</label>
@@ -19,4 +26,4 @@
     </div>
 </div>
 
-<div id="mapa" style="height: 100vh; width: 100%"></div>
+<div id="mapa" style="height: 60vh; width: 80%"></div>

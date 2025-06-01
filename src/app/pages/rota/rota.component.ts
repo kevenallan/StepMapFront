@@ -33,10 +33,50 @@ export class RotaComponent implements AfterViewInit {
     origem = '';
     destino = '';
 
+    origemCoord: L.LatLng | null = null;
+    destinoCoord: L.LatLng | null = null;
+
+    private markerOrigem?: L.Marker;
+    private markerDestino?: L.Marker;
+
+    private modoSelecionando: 'origem' | 'destino' | null = null;
+
     constructor(private mapaService: MapaService, private http: HttpClient) {}
 
     ngAfterViewInit(): void {
         this.map = this.mapaService.initMap();
+
+        this.map.on('click', (e: L.LeafletMouseEvent) => {
+            if (this.modoSelecionando === 'origem') {
+                this.origemCoord = e.latlng;
+                if (this.markerOrigem) this.map.removeLayer(this.markerOrigem);
+                this.markerOrigem = L.marker(e.latlng).addTo(this.map);
+                this.modoSelecionando = null;
+            } else if (this.modoSelecionando === 'destino') {
+                this.destinoCoord = e.latlng;
+                if (this.markerDestino)
+                    this.map.removeLayer(this.markerDestino);
+                this.markerDestino = L.marker(e.latlng).addTo(this.map);
+                this.modoSelecionando = null;
+            }
+        });
+    }
+
+    async buscarEndereco(tipo: 'origem' | 'destino') {
+        const endereco = tipo === 'origem' ? this.origem : this.destino;
+        if (!endereco) return;
+
+        const coord = await this.getCoordinates(endereco);
+
+        if (coord) {
+            this.map.setView(coord, 16);
+            this.modoSelecionando = tipo;
+            alert(
+                `Agora clique no mapa para escolher o ponto exato da ${tipo}.`
+            );
+        } else {
+            alert(`Endereço de ${tipo} não encontrado.`);
+        }
     }
 
     async getCoordinates(address: string): Promise<L.LatLng | null> {
@@ -44,9 +84,7 @@ export class RotaComponent implements AfterViewInit {
             address
         )}`;
         try {
-            // Usando HttpClient ao invés de fetch
             const data: any = await firstValueFrom(this.http.get<any[]>(url));
-
             if (data.length > 0) {
                 const lat = parseFloat(data[0].lat);
                 const lon = parseFloat(data[0].lon);
@@ -59,21 +97,18 @@ export class RotaComponent implements AfterViewInit {
         }
     }
 
-    async montarRota() {
+    montarRota() {
+        if (!this.origemCoord || !this.destinoCoord) {
+            alert('Você precisa clicar no mapa após digitar os endereços.');
+            return;
+        }
+
         if (this.rotaControl) {
             this.map.removeControl(this.rotaControl);
         }
 
-        const pontoA = await this.getCoordinates(this.origem);
-        const pontoB = await this.getCoordinates(this.destino);
-
-        if (!pontoA || !pontoB) {
-            alert('Não foi possível encontrar as coordenadas dos endereços.');
-            return;
-        }
-
         this.rotaControl = L.Routing.control({
-            waypoints: [pontoA, pontoB],
+            waypoints: [this.origemCoord, this.destinoCoord],
             routeWhileDragging: false,
             createMarker: (_index: number, waypoint: L.LatLng | null) => {
                 if (!waypoint) return null;
