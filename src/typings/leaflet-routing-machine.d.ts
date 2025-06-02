@@ -1,4 +1,6 @@
-declare namespace L {
+import * as L from 'leaflet';
+
+declare module 'leaflet' {
     namespace Routing {
         function control(options?: any): any;
         class OSRMv1 {

@@ -32,13 +32,24 @@ export class MapaComponent implements AfterViewInit {
                     // Atualiza o mapa para o novo local (opcional)
                     this.map.setView([lat, lng], 16);
 
-                    // Adiciona um marker no novo ponto
-                    L.marker([lat, lng])
-                        .addTo(this.map)
-                        .bindPopup(
-                            `Movimento: ${new Date().toLocaleTimeString()}`
-                        )
-                        .openPopup();
+                    if (!this.userMarker) {
+                        // Cria o marker apenas uma vez
+                        this.userMarker = L.marker([lat, lng])
+                            .addTo(this.map)
+                            .bindPopup(
+                                `Movimento: ${new Date().toLocaleTimeString()}`
+                            )
+                            .openPopup();
+                    } else {
+                        // Atualiza a posição do marker existente
+                        this.userMarker
+                            .setLatLng([lat, lng])
+                            .getPopup()
+                            ?.setContent(
+                                `Movimento: ${new Date().toLocaleTimeString()}`
+                            )
+                            .openOn(this.map);
+                    }
                 },
                 (err) => {
                     console.error('Erro ao rastrear localização:', err);

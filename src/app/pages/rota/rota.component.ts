@@ -30,8 +30,11 @@ export class RotaComponent implements AfterViewInit {
     private map!: L.Map;
     private rotaControl: any;
 
-    origem = '';
-    destino = '';
+    private ORS_API_KEY =
+        '5b3ce3597851110001cf6248b6230345a07942ff8963b64258d71297';
+
+    origem = 'mangabeira shopping';
+    destino = 'almeidão';
 
     origemCoord: L.LatLng | null = null;
     destinoCoord: L.LatLng | null = null;
@@ -45,6 +48,7 @@ export class RotaComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.map = this.mapaService.initMap();
+        console.log('L.Routing', L.Routing);
 
         this.map.on('click', (e: L.LeafletMouseEvent) => {
             if (this.modoSelecionando === 'origem') {
@@ -96,30 +100,39 @@ export class RotaComponent implements AfterViewInit {
             return null;
         }
     }
-
     montarRota() {
         if (!this.origemCoord || !this.destinoCoord) {
             alert('Você precisa clicar no mapa após digitar os endereços.');
             return;
         }
 
-        if (this.rotaControl) {
-            this.map.removeControl(this.rotaControl);
-        }
+        const body = {
+            coordinates: [
+                [this.origemCoord.lng, this.origemCoord.lat],
+                [this.destinoCoord.lng, this.destinoCoord.lat],
+            ],
+        };
 
-        this.rotaControl = L.Routing.control({
-            waypoints: [this.origemCoord, this.destinoCoord],
-            routeWhileDragging: false,
-            createMarker: (_index: number, waypoint: L.LatLng | null) => {
-                if (!waypoint) return null;
-                return L.marker(waypoint, { draggable: false });
+        const url =
+            'http://localhost:8080/ors-api/v2/directions/driving-car/geojson';
+
+        this.http.post<any>(url, body).subscribe({
+            next: (data) => {
+                if (this.rotaControl) {
+                    this.map.removeControl(this.rotaControl);
+                }
+                this.rotaControl = L.geoJSON(data).addTo(this.map);
+                const coords = data.features[0].geometry.coordinates;
+                const latLngs = coords.map((c: number[]) =>
+                    L.latLng(c[1], c[0])
+                );
+                const bounds = L.latLngBounds(latLngs);
+                this.map.fitBounds(bounds);
             },
-        }).addTo(this.map);
-
-        this.rotaControl.on('routesfound', (e: any) => {
-            const route = e.routes[0];
-            const bounds = L.latLngBounds(route.coordinates);
-            this.map.fitBounds(bounds);
+            error: (error) => {
+                console.error('Erro ao obter rota do backend:', error);
+                alert('Erro ao obter rota do backend.');
+            },
         });
     }
 }
