@@ -5,6 +5,7 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 
 import { MapaService } from '../../core/service/mapa.service';
+import { environment } from '../../../environments/environment';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -100,6 +101,7 @@ export class RotaComponent implements AfterViewInit {
             return null;
         }
     }
+    routeLayer!: L.GeoJSON;
     montarRota() {
         if (!this.origemCoord || !this.destinoCoord) {
             alert('Você precisa clicar no mapa após digitar os endereços.');
@@ -112,27 +114,32 @@ export class RotaComponent implements AfterViewInit {
                 [this.destinoCoord.lng, this.destinoCoord.lat],
             ],
         };
+        this.http
+            .post<any>(
+                `${environment.apiUrl}/v2/directions/driving-car/geojson`,
+                body
+            )
+            .subscribe({
+                next: (res) => {
+                    console.log('Resposta da rota:', res);
 
-        const url =
-            'http://localhost:8080/ors-api/v2/directions/driving-car/geojson';
+                    // Se já existe uma rota, remova antes de adicionar a nova
+                    if (this.routeLayer) {
+                        this.map.removeLayer(this.routeLayer);
+                    }
 
-        this.http.post<any>(url, body).subscribe({
-            next: (data) => {
-                if (this.rotaControl) {
-                    this.map.removeControl(this.rotaControl);
-                }
-                this.rotaControl = L.geoJSON(data).addTo(this.map);
-                const coords = data.features[0].geometry.coordinates;
-                const latLngs = coords.map((c: number[]) =>
-                    L.latLng(c[1], c[0])
-                );
-                const bounds = L.latLngBounds(latLngs);
-                this.map.fitBounds(bounds);
-            },
-            error: (error) => {
-                console.error('Erro ao obter rota do backend:', error);
-                alert('Erro ao obter rota do backend.');
-            },
-        });
+                    // Cria uma camada GeoJSON com a rota
+                    this.routeLayer = L.geoJSON(res).addTo(this.map);
+
+                    // Ajusta o zoom do mapa para caber toda a rota
+                    this.map.fitBounds(this.routeLayer.getBounds());
+                },
+                error: (err) => {
+                    console.error('Erro ao obter rota do backend:', err);
+                    alert(
+                        'Não foi possível obter a rota. Tente novamente mais tarde.'
+                    );
+                },
+            });
     }
 }
