@@ -102,6 +102,8 @@ export class RotaComponent implements AfterViewInit {
         }
     }
     routeLayer!: L.GeoJSON;
+    userMarker: L.Marker | null = null;
+
     montarRota() {
         if (!this.origemCoord || !this.destinoCoord) {
             alert('Você precisa clicar no mapa após digitar os endereços.');
@@ -133,6 +135,7 @@ export class RotaComponent implements AfterViewInit {
 
                     // Ajusta o zoom do mapa para caber toda a rota
                     this.map.fitBounds(this.routeLayer.getBounds());
+                    this.watchUserLocation();
                 },
                 error: (err) => {
                     console.error('Erro ao obter rota do backend:', err);
@@ -141,5 +144,50 @@ export class RotaComponent implements AfterViewInit {
                     );
                 },
             });
+    }
+    private watchUserLocation(): void {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+
+                    console.log('Movimento detectado:', lat, lng);
+
+                    // Atualiza o mapa para o novo local (opcional)
+                    this.map.setView([lat, lng], 16);
+
+                    if (!this.userMarker) {
+                        // Cria o marker apenas uma vez
+                        this.userMarker = L.marker([lat, lng])
+                            .addTo(this.map)
+                            .bindPopup(
+                                `Movimento: ${new Date().toLocaleTimeString()}`
+                            )
+                            .openPopup();
+                    } else {
+                        // Atualiza a posição do marker existente
+                        this.userMarker
+                            .setLatLng([lat, lng])
+                            .getPopup()
+                            ?.setContent(
+                                `Movimento: ${new Date().toLocaleTimeString()}`
+                            )
+                            .openOn(this.map);
+                    }
+                },
+                (err) => {
+                    console.error('Erro ao rastrear localização:', err);
+                    alert('Erro ao rastrear localização: ' + err.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        } else {
+            alert('Geolocalização não suportada pelo navegador.');
+        }
     }
 }
