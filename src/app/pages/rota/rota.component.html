@@ -39,7 +39,25 @@
 </div>
 <div style="display: flex; justify-content: center">
     <div style="height: 60vh; width: 80%; position: relative">
+        <!-- Spinner centralizado -->
+        <div
+            *ngIf="carregandoRota"
+            class="loading"
+            style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 2000;
+            "
+        >
+            <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+        </div>
+
+        <!-- Mapa -->
         <div id="mapa" style="height: 100%; width: 100%"></div>
+
+        <!-- Botão de rastreamento -->
         <div
             style="position: absolute; bottom: 15px; right: 15px; z-index: 1000"
         >

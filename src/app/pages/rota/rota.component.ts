@@ -14,6 +14,8 @@ import { FloatLabel } from 'primeng/floatlabel';
 
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-rota',
@@ -22,11 +24,13 @@ import { firstValueFrom } from 'rxjs';
     standalone: true,
     imports: [
         FormsModule,
+        CommonModule,
         InputTextModule,
         AutoCompleteModule,
         FloatLabel,
         ButtonModule,
         HttpClientModule,
+        ProgressSpinnerModule
     ],
 })
 export class RotaComponent implements AfterViewInit {
@@ -48,6 +52,8 @@ export class RotaComponent implements AfterViewInit {
 
     rastreamentoAtivo = false;
     watchId: number | null = null;
+
+    carregandoRota = false;
 
     constructor(private mapaService: MapaService, private http: HttpClient) {}
 
@@ -113,6 +119,7 @@ export class RotaComponent implements AfterViewInit {
             alert('Você precisa selecionar a origem e o destino.');
             return;
         }
+        this.carregandoRota = true; // Inicia carregamento
         this.iniciarRastreamento();
         const body = {
             coordinates: [
@@ -137,9 +144,13 @@ export class RotaComponent implements AfterViewInit {
                 },
                 error: (err) => {
                     console.error('Erro ao obter rota do backend:', err);
+                    this.carregandoRota = false;
                     alert(
                         'Não foi possível obter a rota. Tente novamente mais tarde.'
                     );
+                },
+                complete: () => {
+                    this.carregandoRota = false;
                 },
             });
     }
