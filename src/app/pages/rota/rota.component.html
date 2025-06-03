@@ -45,12 +45,18 @@
         <p-button label="Ir" (click)="montarRota()"></p-button>
     </div>
 </div>
-<div style="display: flex; justify-content: center;">
-    <div style="height: 60vh; width: 80%;position: relative;">
-        <div id="mapa" style="height: 100%; width: 100%;">
-        </div>
-        <div style="position: absolute; bottom: 15px; right: 15px; z-index: 1000;">
-            <p-button icon="pi pi-map-marker"></p-button>
+<div style="display: flex; justify-content: center">
+    <div style="height: 60vh; width: 80%; position: relative">
+        <div id="mapa" style="height: 100%; width: 100%"></div>
+        <div
+            style="position: absolute; bottom: 15px; right: 15px; z-index: 1000"
+        >
+            <p-button
+                icon="pi pi-map-marker"
+                (click)="toggleRastreamento()"
+                [severity]="rastreamentoAtivo ? 'info' : 'secondary'"
+                [label]="rastreamentoAtivo ? 'Centralizando' : 'Livre'"
+            ></p-button>
         </div>
     </div>
 </div>

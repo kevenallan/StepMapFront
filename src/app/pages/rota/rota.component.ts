@@ -46,10 +46,16 @@ export class RotaComponent implements AfterViewInit {
     private markerOrigem?: L.Marker;
     private markerDestino?: L.Marker;
 
+    rastreamentoAtivo = false;
+    watchId: number | null = null;
+
     constructor(private mapaService: MapaService, private http: HttpClient) {}
 
     ngAfterViewInit(): void {
         this.map = this.mapaService.initMap();
+        this.map.stopLocate();
+
+        // this.iniciarRastreamento(); // novo método abaixo
 
         this.map.on('click', (e: L.LeafletMouseEvent) => {
             if (!this.tipoSelecionadoParaMarcador) return;
@@ -68,7 +74,6 @@ export class RotaComponent implements AfterViewInit {
                 this.destinoCoord = coord;
             }
 
-            // Resetar após o clique
             this.tipoSelecionadoParaMarcador = null;
         });
     }
@@ -108,7 +113,7 @@ export class RotaComponent implements AfterViewInit {
             alert('Você precisa selecionar a origem e o destino.');
             return;
         }
-
+        this.iniciarRastreamento();
         const body = {
             coordinates: [
                 [this.origemCoord.lng, this.origemCoord.lat],
@@ -139,14 +144,56 @@ export class RotaComponent implements AfterViewInit {
             });
     }
 
+    private iniciarRastreamento(): void {
+        if (!navigator.geolocation) {
+            alert('Geolocalização não suportada.');
+            return;
+        }
+
+        this.watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                if (!this.userMarker) {
+                    this.userMarker = L.marker([lat, lng])
+                        .addTo(this.map)
+                        .bindPopup(
+                            `Movimento: ${new Date().toLocaleTimeString()}`
+                        )
+                        .openPopup();
+                } else {
+                    this.userMarker
+                        .setLatLng([lat, lng])
+                        .getPopup()
+                        ?.setContent(
+                            `Movimento: ${new Date().toLocaleTimeString()}`
+                        );
+                }
+
+                // Só centraliza se o modo de rastreamento estiver ativado
+                if (this.rastreamentoAtivo) {
+                    this.map.setView([lat, lng]);
+                }
+            },
+            (err) => {
+                console.error('Erro ao rastrear localização:', err);
+                alert('Erro ao rastrear localização: ' + err.message);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
+            }
+        );
+    }
+
     private watchUserLocation(): void {
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(
                 (pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
-
-                    this.map.setView([lat, lng], 16);
 
                     if (!this.userMarker) {
                         this.userMarker = L.marker([lat, lng])
@@ -161,8 +208,14 @@ export class RotaComponent implements AfterViewInit {
                             .getPopup()
                             ?.setContent(
                                 `Movimento: ${new Date().toLocaleTimeString()}`
-                            )
-                            .openOn(this.map);
+                            );
+                    }
+
+                    // 🔁 Só centraliza se o rastreamento estiver ativo
+                    if (this.rastreamentoAtivo) {
+                        this.map.setView([lat, lng], 16);
+                        // opcional: abrir popup
+                        this.userMarker.openPopup();
                     }
                 },
                 (err) => {
@@ -177,6 +230,15 @@ export class RotaComponent implements AfterViewInit {
             );
         } else {
             alert('Geolocalização não suportada pelo navegador.');
+        }
+    }
+
+    toggleRastreamento() {
+        this.rastreamentoAtivo = !this.rastreamentoAtivo;
+
+        if (this.rastreamentoAtivo && this.userMarker) {
+            const latlng = this.userMarker.getLatLng();
+            this.map.setView(latlng, 16); // Centraliza imediatamente
         }
     }
 }
