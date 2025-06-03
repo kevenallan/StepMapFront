@@ -1,32 +1,43 @@
 <div class="container" style="margin: 10px">
-    <div id="endereco">
+    <div id="endereco" style="display: flex; align-items: center; gap: 5px">
         <p-floatlabel variant="on">
-            <input
-                pInputText
-                id="origem"
+            <!-- [dropdown]="true" -->
+            <p-autoComplete
+                inputId="origem"
                 [(ngModel)]="origem"
-                autocomplete="off"
-            />
+                [suggestions]="origemSuggestions"
+                (completeMethod)="buscarSugestoes($event, 'origem')"
+                (onSelect)="selecionarEndereco('origem')"
+                field="display_name"
+                forceSelection="true"
+            ></p-autoComplete>
             <label for="origem">Origem</label>
         </p-floatlabel>
         <p-button
             icon="pi pi-search"
-            (click)="buscarEndereco('origem')"
+            (click)="selecionarEndereco('origem')"
         ></p-button>
     </div>
-    <div id="endereco">
+
+    <div
+        id="endereco"
+        style="display: flex; align-items: center; gap: 5px; margin-top: 10px"
+    >
         <p-floatlabel variant="on">
-            <input
-                pInputText
-                id="destino"
+            <p-autoComplete
+                inputId="destino"
                 [(ngModel)]="destino"
-                autocomplete="off"
-            />
+                [suggestions]="destinoSuggestions"
+                (completeMethod)="buscarSugestoes($event, 'destino')"
+                (onSelect)="selecionarEndereco('destino')"
+                field="display_name"
+                forceSelection="true"
+            ></p-autoComplete>
             <label for="destino">Destino</label>
         </p-floatlabel>
         <p-button
             icon="pi pi-search"
-            (click)="buscarEndereco('destino')"
+            (click)="selecionarEndereco('destino')"
         ></p-button>
     </div>
 
@@ -34,7 +45,12 @@
         <p-button label="Ir" (click)="montarRota()"></p-button>
     </div>
 </div>
-
 <div style="display: flex; justify-content: center;">
-    <div id="mapa" style="height: 60vh; width: 80%"></div>
+    <div style="height: 60vh; width: 80%;position: relative;">
+        <div id="mapa" style="height: 100%; width: 100%;">
+        </div>
+        <div style="position: absolute; bottom: 15px; right: 15px; z-index: 1000;">
+            <p-button icon="pi pi-map-marker"></p-button>
+        </div>
+    </div>
 </div>
