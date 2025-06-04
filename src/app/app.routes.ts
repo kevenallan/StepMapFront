@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
 import { MapaComponent } from './pages/mapa/mapa.component';
 import { RotaComponent } from './pages/rota/rota.component';
-import { NavegacaoComponent } from './pages/navegacao/navegacao.component';
+import { MenuComponent } from './layout/menu/menu.component';
 
 export const routes: Routes = [
     {
         path: 'app',
-        component: NavegacaoComponent,
+        component: MenuComponent,
         children: [
             { path: 'mapa', component: MapaComponent },
             { path: 'rota', component: RotaComponent },
