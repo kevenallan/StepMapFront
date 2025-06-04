@@ -26,6 +26,11 @@ export class MenuComponent implements OnInit {
                 icon: 'pi pi-map',
                 routerLink: '/app/rota',
             },
+            {
+                label: 'Navegação',
+                icon: 'pi pi-map',
+                routerLink: '/app/navegacao',
+            },
         ];
     }
 }

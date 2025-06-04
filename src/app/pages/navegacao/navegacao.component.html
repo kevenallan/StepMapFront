@@ -1,0 +1,78 @@
+<div class="container" style="margin: 10px">
+    <div id="origem" style="margin-bottom: 15px">
+        <p><b>Origem:</b> Sua localização atual será usada automaticamente.</p>
+    </div>
+
+    <div
+        *ngFor="let destino of destinos; let i = index"
+        style="margin-bottom: 10px"
+    >
+        <div style="display: flex; align-items: center; gap: 5px">
+            <p-autoComplete
+                inputId="destino{{ i }}"
+                [(ngModel)]="destinos[i]"
+                [suggestions]="destinosSuggestions[i]"
+                (completeMethod)="buscarSugestoes($event, 'destino', i)"
+                (onSelect)="iniciarPosicionamentoMarcador(i)"
+                field="display_name"
+                forceSelection="true"
+                placeholder="Digite um destino"
+            ></p-autoComplete>
+            <p-button
+                icon="pi pi-times"
+                class="p-button-danger"
+                (click)="removerDestino(i)"
+                tooltip="Remover destino"
+            ></p-button>
+        </div>
+        <small
+            *ngIf="aguardandoCliqueIndex === i"
+            style="color: #d9534f; margin-left: 5px"
+        >
+            Clique no mapa para posicionar o marcador deste destino.
+        </small>
+    </div>
+
+    <div style="margin-top: 10px">
+        <p-button
+            label="Adicionar Destino"
+            icon="pi pi-plus"
+            (click)="adicionarDestino()"
+        ></p-button>
+    </div>
+
+    <div class="card flex justify-center" style="margin-top: 20px">
+        <p-button label="Montar Rota" (click)="montarRota()"></p-button>
+    </div>
+</div>
+
+<div style="display: flex; justify-content: center; margin-top: 20px">
+    <div style="height: 60vh; width: 80%; position: relative">
+        <div
+            *ngIf="carregandoRota"
+            class="loading"
+            style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 2000;
+            "
+        >
+            <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+        </div>
+
+        <div id="mapa" style="height: 100%; width: 100%"></div>
+
+        <div
+            style="position: absolute; bottom: 15px; right: 15px; z-index: 1000"
+        >
+            <p-button
+                icon="pi pi-map-marker"
+                (click)="toggleRastreamento()"
+                [severity]="rastreamentoAtivo ? 'info' : 'secondary'"
+                [label]="rastreamentoAtivo ? 'Centralizando' : 'Livre'"
+            ></p-button>
+        </div>
+    </div>
+</div>
